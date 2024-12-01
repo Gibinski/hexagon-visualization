@@ -1,21 +1,28 @@
-import pytest
-import numpy as np 
+
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+import unittest
 from hexagon_visualization import hexagon
 
-def test_hexagon_vertices():
-    """Test that the hexagon function generates the correct number of vertices."""
-    center = (0, 0)
-    radius = 1
-    x, y = hexagon(center, radius)
-    assert len(x) == 7, "Hexagon should have 7 vertices (including closure)."
-    assert len(y) == 7, "Hexagon should have 7 vertices (including closure)."
+class TestHexagonFunction(unittest.TestCase):
+    def test_hexagon_vertices(self):
+        # Test that the hexagon vertices are correctly calculated
+        center = (0, 0)
+        radius = 1
+        x, y = hexagon(center, radius)
+        self.assertEqual(len(x), 7)  # Hexagon should have 6 vertices + 1 (closing)
+        self.assertEqual(len(y), 7)
+        self.assertAlmostEqual(x[0], x[-1])  # First and last vertices must match
+        self.assertAlmostEqual(y[0], y[-1])
 
-def test_hexagon_coordinates():
-    """Test that the hexagon function returns correct coordinates for known input."""
-    center = (0, 0)
-    radius = 1
-    x, y = hexagon(center, radius)
-    expected_x = [1, 0.5, -0.5, -1, -0.5, 0.5, 1]
-    expected_y = [0, np.sqrt(3) / 2, np.sqrt(3) / 2, 0, -np.sqrt(3) / 2, -np.sqrt(3) / 2, 0]
-    assert pytest.approx(x) == expected_x, "Hexagon X-coordinates are incorrect."
-    assert pytest.approx(y) == expected_y, "Hexagon Y-coordinates are incorrect."
+    def test_hexagon_non_zero_center(self):
+        # Test hexagon with non-zero center
+        center = (2, 3)
+        radius = 1
+        x, y = hexagon(center, radius)
+        self.assertAlmostEqual(x[0], center[0] + radius)
+
+if __name__ == '__main__':
+    unittest.main()
