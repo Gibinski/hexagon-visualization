@@ -1,69 +1,91 @@
-# Re-importing necessary libraries after environment reset
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Function to calculate hexagon vertices
 def hexagon(center, radius):
-    """Calculate the vertices of a hexagon based on its center and radius."""
+    """
+    Calculate the vertices of a hexagon given its center and radius.
+    Args:
+        center (tuple): The (x, y) coordinates of the hexagon's center.
+        radius (float): The radius of the hexagon.
+    Returns:
+        tuple: Two lists (x, y) containing the coordinates of the vertices.
+    """
     angles = np.linspace(0, 2 * np.pi, 7)
     x = center[0] + radius * np.cos(angles)
     y = center[1] + radius * np.sin(angles)
     return x, y
 
-# Function to plot a hexagon cluster (central and surrounding hexagons)
-def seven_hex(main_center, main_radius, color, offsets):
+def draw_cluster(main_center, radius, color):
     """
-    Draw a central hexagon and its surrounding six hexagons.
-    :param main_center: Tuple for the central hexagon's center.
-    :param main_radius: Radius of the hexagons.
-    :param color: Color of the outer hexagons.
-    :param offsets: List of offsets for surrounding hexagons.
+    Draw a cluster of 7 hexagons: one central and six surrounding it.
+    Args:
+        main_center (tuple): The (x, y) coordinates of the central hexagon.
+        radius (float): The radius of each hexagon.
+        color (str): The color of the surrounding hexagons.
     """
-    # Draw central hexagon
-    main_x, main_y = hexagon(main_center, main_radius)
-    plt.plot(main_x, main_y, 'b-', label='Central Hexagon')
+    # Draw the central hexagon
+    x, y = hexagon(main_center, radius)
+    plt.plot(x, y, 'b-', label="Central Hexagon")
 
-    # Draw surrounding hexagons
+    # Offsets for surrounding hexagons
+    offsets = [
+        (0, 2 * radius),  # Top
+        (np.sqrt(3) * radius, radius),  # Top-right
+        (np.sqrt(3) * radius, -radius),  # Bottom-right
+        (0, -2 * radius),  # Bottom
+        (-np.sqrt(3) * radius, -radius),  # Bottom-left
+        (-np.sqrt(3) * radius, radius),  # Top-left
+    ]
+
+    # Draw the surrounding hexagons
     for offset in offsets:
-        outer_center = (main_center[0] + offset[0], main_center[1] + offset[1])
-        outer_x, outer_y = hexagon(outer_center, main_radius)
-        plt.plot(outer_x, outer_y, color)
+        surrounding_center = (main_center[0] + offset[0], main_center[1] + offset[1])
+        x, y = hexagon(surrounding_center, radius)
+        plt.plot(x, y, color)
 
-# Parameters
-main_radius = 1  # Radius of the hexagons
+def generate_outer_clusters(center, radius, num_clusters, colors):
+    """
+    Generate and draw outer clusters of hexagons around a central cluster.
+    Args:
+        center (tuple): The (x, y) coordinates of the central cluster.
+        radius (float): The radius of each hexagon.
+        num_clusters (int): The number of clusters to draw around the center.
+        colors (list): A list of colors to alternate between clusters.
+    """
+    # Offsets for the outer clusters
+    cluster_offsets = [
+        (np.sqrt(3), 5),
+        (np.sqrt(3) * 3, 1),
+        (np.sqrt(3) * 2, -4),
+        (-np.sqrt(3), -5),
+        (-np.sqrt(3) * 3, -1),
+        (-np.sqrt(3) * 2, 4),
+    ]
 
-# Offsets for surrounding hexagons in a seven-hex cluster
-offsets = [
-    (0, 2 * main_radius),  # Top
-    (np.sqrt(3) * main_radius, main_radius),  # Top-right
-    (np.sqrt(3) * main_radius, -main_radius),  # Bottom-right
-    (0, -2 * main_radius),  # Bottom
-    (-np.sqrt(3) * main_radius, -main_radius),  # Bottom-left
-    (-np.sqrt(3) * main_radius, main_radius),  # Top-left
-]
+    # Draw each cluster
+    for idx, offset in enumerate(cluster_offsets[:num_clusters]):
+        cluster_center = (center[0] + offset[0], center[1] + offset[1])
+        draw_cluster(cluster_center, radius, colors[idx % len(colors)])
 
-# Offsets for positioning clusters of seven hexagons
-offsets_hex = [
-    (np.sqrt(3), 5),
-    (np.sqrt(3) * 3, 1),
-    (np.sqrt(3) * 2, -4),
-    (-np.sqrt(3), -5),
-    (-np.sqrt(3) * 3, -1),
-    (-np.sqrt(3) * 2, 4),
-]
+# Main script
+if __name__ == "__main__":
+    # Parameters
+    central_hexagon_center = (0, 0)
+    hexagon_radius = 1
+    num_outer_clusters = 6  # Number of outer clusters to draw
+    cluster_colors = ['g-', 'y-']  # Alternating colors
 
-# Colors for alternating clusters
-colors = ["g-", "y-"]
+    # Plotting
+    plt.figure(figsize=(10, 10))
+    
+    # Draw the central cluster
+    draw_cluster(central_hexagon_center, hexagon_radius, 'r-')
+    
+    # Draw outer clusters
+    generate_outer_clusters(central_hexagon_center, hexagon_radius, num_outer_clusters, cluster_colors)
 
-# Plotting
-plt.figure(figsize=(10, 10))
-seven_hex((0, 0), main_radius, "r-", offsets)  # Central cluster in red
-for idx, offset in enumerate(offsets_hex):
-    cluster_center = offset
-    seven_hex(cluster_center, main_radius, colors[idx % 2], offsets)  # Alternating colors for clusters
-
-# Formatting
-plt.gca().set_aspect('equal')
-plt.title("Hexagon with Outer Hexagon Clusters")
-plt.grid(True)
-plt.show()
+    # Formatting
+    plt.gca().set_aspect('equal')
+    plt.title("Hexagon Clusters (Aligned and Non-Overlapping)")
+    plt.grid(True)
+    plt.show()
