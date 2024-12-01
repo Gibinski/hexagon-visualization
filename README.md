@@ -17,5 +17,5 @@ This project is a Python script for generating and visualizing clusters of hexag
    cd hexagon-visualization
 
 
-   ![image](https://github.com/user-attachments/assets/81879aad-c071-481c-b661-b3559df5f63c)
+![image](https://github.com/user-attachments/assets/81879aad-c071-481c-b661-b3559df5f63c)
 
